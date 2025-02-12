@@ -128,8 +128,15 @@
   color: #e2e8f0;
 }
 
-.audio-player-bottom > audio{
-  margin-left: 25%;
+.audio-player-bottom {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.audio-player-bottom > audio {
+  width: 90%;
+  max-width: 600px;
 }
 
 .article-content {
@@ -262,9 +269,11 @@
   transform: translateX(-50%);
   width: 90%;
   max-width: 800px;
+  /* 透明度 100% */
+  opacity: 1;
   /* padding: 1rem; */
   /* background-color: #2d3748; */
   /* border-radius: 8px; */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); */
   z-index: 1000;
 }
