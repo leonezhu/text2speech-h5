@@ -8,6 +8,10 @@ function App() {
   const [error, setError] = useState('')
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
+  const [displayLanguage, setDisplayLanguage] = useState('both')
+  const [audioLanguage, setAudioLanguage] = useState('')
+  const [showSentences, setShowSentences] = useState([])
+  const [availableLanguages, setAvailableLanguages] = useState([])
 
   const audioRef = useRef(null)
 
@@ -31,17 +35,16 @@ function App() {
           const articleData = await articleResponse.json()
           return {
             id: file.name.replace('.json', ''),
-            ...articleData,
-            audioUrl: `https://raw.githubusercontent.com/${GITHUB_REPO}/${GITHUB_BRANCH}/backend/audio_files/${articleData.audio_filename}`
+            ...articleData
           }
         })
 
         const articles = await Promise.all(articlePromises)
         const sortedArticles = articles.sort((a, b) => b.id.localeCompare(a.id))
         setArticles(sortedArticles)
-        // 自动选择第一篇文章
+        // 自动选择第一篇文章并初始化显示内容
         if (sortedArticles.length > 0) {
-          setSelectedArticle(sortedArticles[0])
+          handleArticleSelect(sortedArticles[0])
         }
       }
     } catch (err) {
@@ -54,6 +57,49 @@ function App() {
   const handleArticleSelect = (article) => {
     setSelectedArticle(article)
     setIsSidebarOpen(false)
+
+    // 获取可用的语言版本
+    const languages = Object.keys(article.language_versions || {})
+    setAvailableLanguages(languages)
+    
+    // 设置默认音频语言
+    const defaultLang = languages.includes('en') ? 'en' : languages[0]
+    setAudioLanguage(defaultLang)
+    
+    // 确保文章内容正确显示并设置音频URL
+    if (article && article.language_versions && article.language_versions[defaultLang]) {
+      const sentences = article.language_versions[defaultLang].sentences || []
+      const audioUrl = `https://raw.githubusercontent.com/${GITHUB_REPO}/${GITHUB_BRANCH}/backend/audio_files/${article.language_versions[defaultLang].audio_filename}`
+      // 直接设置selectedArticle的audioUrl属性
+      setSelectedArticle(prev => ({ ...prev, audioUrl }))
+      handleDisplayLanguageChange('both', sentences)
+    } else {
+      setError('文章内容加载失败')
+    }
+  }
+
+  // 添加useEffect来监听selectedArticle变化并处理音频加载
+  useEffect(() => {
+    if (selectedArticle?.audioUrl && audioRef.current) {
+      audioRef.current.src = selectedArticle.audioUrl
+      audioRef.current.load()
+    }
+  }, [selectedArticle])
+
+  const handleDisplayLanguageChange = (lang, sentences = null) => {
+    setDisplayLanguage(lang)
+    const targetSentences = sentences || (selectedArticle && selectedArticle.language_versions && selectedArticle.language_versions[audioLanguage]?.sentences) || []
+    if (!targetSentences) return
+
+    let temp = []
+    if (lang === 'both') {
+      temp = targetSentences
+    } else {
+      temp = targetSentences.filter(
+        (sentence) => sentence.language === lang || sentence.text === '\n'
+      )
+    }
+    setShowSentences(temp)
   }
 
   return (
@@ -89,19 +135,40 @@ function App() {
       <div className="main-content">
         {selectedArticle ? (
           <div className="article-view">
-            <div className="audio-player">
-              <audio 
-                ref={audioRef}
-                controls
-                src={selectedArticle.audioUrl}
-                onTimeUpdate={(e) => setCurrentTime(e.target.currentTime)}
-              >
-                您的浏览器不支持音频播放
-              </audio>
-            </div>
             <div className="article-content">
               <h2>{selectedArticle.title}</h2>
-              {selectedArticle.sentences?.map((sentence, index) => (
+              <div className="language-controls">
+                <select
+                  value={displayLanguage}
+                  onChange={(e) => handleDisplayLanguageChange(e.target.value)}
+                  className="language-selector"
+                >
+                  <option value="both">中英对照</option>
+                  <option value="zh">仅中文</option>
+                  <option value="en">仅英文</option>
+                </select>
+                <div className="audio-language-buttons">
+                  {availableLanguages.map((lang) => (
+                    <button
+                      key={lang}
+                      className={`audio-language-btn ${audioLanguage === lang ? 'active' : ''}`}
+                      onClick={() => {
+                        setAudioLanguage(lang)
+                        // 更新音频URL
+                        if (selectedArticle) {
+                          const newAudioUrl = `https://raw.githubusercontent.com/${GITHUB_REPO}/${GITHUB_BRANCH}/backend/audio_files/${selectedArticle.audio_filename.replace(/_(en|zh)_/, `_${lang}_`)}`
+                          audioRef.current.src = newAudioUrl
+                          audioRef.current.load()
+                          audioRef.current.play()
+                        }
+                      }}
+                    >
+                      {lang === 'zh' ? '中' : 'EN'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {showSentences.map((sentence, index) => (
                 sentence.text === '\n' ? (
                   <br key={index} />
                 ) : (
@@ -124,6 +191,16 @@ function App() {
                   </span>
                 )
               ))}
+            </div>
+            <div className="audio-player-bottom">
+              <audio 
+                ref={audioRef}
+                controls
+                src={selectedArticle.audioUrl}
+                onTimeUpdate={(e) => setCurrentTime(e.target.currentTime)}
+              >
+                您的浏览器不支持音频播放
+              </audio>
             </div>
           </div>
         ) : loading ? (
