@@ -47,7 +47,7 @@ function App() {
     setError("");
     try {
       const response = await fetch(
-        `https://api.github.com/repos/${githubRepo}/contents/backend/articles?ref=${GITHUB_BRANCH}`
+        `https://api.github.com/repos/${githubRepo}/contents/articles?ref=${GITHUB_BRANCH}`
       );
       const data = await response.json();
 
@@ -93,7 +93,7 @@ function App() {
       article.language_versions[defaultLang]
     ) {
       const sentences = article.language_versions[defaultLang].sentences || [];
-      const audioUrl = `https://raw.githubusercontent.com/${githubRepo}/${GITHUB_BRANCH}/backend/audio_files/${article.language_versions[defaultLang].audio_filename}`;
+      const audioUrl = `https://raw.githubusercontent.com/${githubRepo}/${GITHUB_BRANCH}/audio_files/${article.language_versions[defaultLang].audio_filename}`;
       setSelectedArticle((prev) => ({ ...prev, audioUrl }));
       handleDisplayLanguageChange("both", sentences);
     } else {
