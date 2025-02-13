@@ -12,21 +12,41 @@ function App() {
   const [audioLanguage, setAudioLanguage] = useState('')
   const [showSentences, setShowSentences] = useState([])
   const [availableLanguages, setAvailableLanguages] = useState([])
+  const [showConfigModal, setShowConfigModal] = useState(false)
+  const [githubRepo, setGithubRepo] = useState('')
 
   const audioRef = useRef(null)
-
-  const GITHUB_REPO = 'leonezhu/text2speech-82M'
   const GITHUB_BRANCH = 'master'
 
   useEffect(() => {
-    fetchArticles()
+    // 从 localStorage 获取配置
+    const savedRepo = localStorage.getItem('githubRepo')
+    if (savedRepo) {
+      setGithubRepo(savedRepo)
+    } else {
+      setShowConfigModal(true)
+    }
   }, [])
 
+  useEffect(() => {
+    if (githubRepo) {
+      fetchArticles()
+    }
+  }, [githubRepo])
+
+  const handleConfigSubmit = (repo) => {
+    setGithubRepo(repo)
+    localStorage.setItem('githubRepo', repo)
+    setShowConfigModal(false)
+    fetchArticles()
+  }
+
   const fetchArticles = async () => {
+    if (!githubRepo) return
     setLoading(true)
     setError('')
     try {
-      const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/backend/articles?ref=${GITHUB_BRANCH}`)
+      const response = await fetch(`https://api.github.com/repos/${githubRepo}/contents/backend/articles?ref=${GITHUB_BRANCH}`)
       const data = await response.json()
       
       if (Array.isArray(data)) {
@@ -42,7 +62,6 @@ function App() {
         const articles = await Promise.all(articlePromises)
         const sortedArticles = articles.sort((a, b) => b.id.localeCompare(a.id))
         setArticles(sortedArticles)
-        // 自动选择第一篇文章并初始化显示内容
         if (sortedArticles.length > 0) {
           handleArticleSelect(sortedArticles[0])
         }
@@ -58,19 +77,15 @@ function App() {
     setSelectedArticle(article)
     setIsSidebarOpen(false)
 
-    // 获取可用的语言版本
     const languages = Object.keys(article.language_versions || {})
     setAvailableLanguages(languages)
     
-    // 设置默认音频语言
     const defaultLang = languages.includes('en') ? 'en' : languages[0]
     setAudioLanguage(defaultLang)
     
-    // 确保文章内容正确显示并设置音频URL
     if (article && article.language_versions && article.language_versions[defaultLang]) {
       const sentences = article.language_versions[defaultLang].sentences || []
-      const audioUrl = `https://raw.githubusercontent.com/${GITHUB_REPO}/${GITHUB_BRANCH}/backend/audio_files/${article.language_versions[defaultLang].audio_filename}`
-      // 直接设置selectedArticle的audioUrl属性
+      const audioUrl = `https://raw.githubusercontent.com/${githubRepo}/${GITHUB_BRANCH}/backend/audio_files/${article.language_versions[defaultLang].audio_filename}`
       setSelectedArticle(prev => ({ ...prev, audioUrl }))
       handleDisplayLanguageChange('both', sentences)
     } else {
@@ -78,7 +93,6 @@ function App() {
     }
   }
 
-  // 添加useEffect来监听selectedArticle变化并处理音频加载
   useEffect(() => {
     if (selectedArticle?.audioUrl && audioRef.current) {
       audioRef.current.src = selectedArticle.audioUrl
@@ -110,6 +124,42 @@ function App() {
       >
         ☰
       </button>
+
+      <button
+        className="config-button"
+        onClick={() => setShowConfigModal(true)}
+        title="配置仓库"
+      >
+        ⚙️
+      </button>
+
+      {showConfigModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>配置 GitHub 仓库</h3>
+            <input
+              type="text"
+              defaultValue={githubRepo}
+              placeholder="请输入 GitHub 仓库地址 (格式: 用户名/仓库名)"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleConfigSubmit(e.target.value)
+                }
+              }}
+            />
+            <div className="modal-buttons">
+              <button onClick={() => handleConfigSubmit(document.querySelector('.modal-content input').value)}>
+                确定
+              </button>
+              {githubRepo && (
+                <button onClick={() => setShowConfigModal(false)}>
+                  取消
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <h2> &nbsp; </h2>
@@ -154,9 +204,8 @@ function App() {
                       className={`audio-language-btn ${audioLanguage === lang ? 'active' : ''}`}
                       onClick={() => {
                         setAudioLanguage(lang)
-                        // 更新音频URL
                         if (selectedArticle) {
-                          const newAudioUrl = `https://raw.githubusercontent.com/${GITHUB_REPO}/${GITHUB_BRANCH}/backend/audio_files/${selectedArticle.audio_filename.replace(/_(en|zh)_/, `_${lang}_`)}`
+                          const newAudioUrl = `https://raw.githubusercontent.com/${githubRepo}/${GITHUB_BRANCH}/backend/audio_files/${selectedArticle.audio_filename.replace(/_(en|zh)_/, `_${lang}_`)}`
                           audioRef.current.src = newAudioUrl
                           audioRef.current.load()
                           audioRef.current.play()
