@@ -118,20 +118,59 @@ function App() {
 
   return (
     <div className="app-container">
-      <button
-        className="sidebar-toggle"
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-      >
-        ☰
-      </button>
-
-      <button
-        className="config-button"
-        onClick={() => setShowConfigModal(true)}
-        title="配置仓库"
-      >
-        ⚙️
-      </button>
+      <div className="top-toolbar">
+        <div className="toolbar-left">
+         
+          <button
+            className="toolbar-button"
+            onClick={() => setShowConfigModal(true)}
+            title="配置仓库"
+          >
+            ⚙️
+          </button>
+        </div>
+        
+        <div className="toolbar-right">
+          <select
+            value={displayLanguage}
+            onChange={(e) => handleDisplayLanguageChange(e.target.value)}
+            className="language-selector"
+          >
+            <option value="both">中英 1对照</option>
+            <option value="zh">仅中文</option>
+            <option value="en">仅英文</option>
+          </select>
+          
+          <div className="audio-language-buttons">
+            {availableLanguages.map((lang) => (
+              <button
+                key={lang}
+                className="toolbar-button"
+                onClick={() => {
+                  setAudioLanguage(lang)
+                  if (selectedArticle) {
+                    const newAudioUrl = `https://raw.githubusercontent.com/${githubRepo}/${GITHUB_BRANCH}/backend/audio_files/${selectedArticle.audio_filename.replace(/_(en|zh)_/, `_${lang}_`)}`
+                    audioRef.current.src = newAudioUrl
+                    audioRef.current.load()
+                    audioRef.current.play()
+                  }
+                }}
+                title={lang === 'zh' ? '中文音频' : '英文音频'}
+              >
+                {lang === 'zh' ? '🔊中' : '🔊EN'}
+              </button>
+            ))}
+          </div>
+          {/* 右上角 */}
+          <button
+            className="toolbar-button"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            title="文章列表"
+          >
+            ☰
+          </button>
+        </div>
+      </div>
 
       {showConfigModal && (
         <div className="modal-overlay">
@@ -187,36 +226,7 @@ function App() {
           <div className="article-view">
             <div className="article-content">
               <h2>{selectedArticle.title}</h2>
-              <div className="language-controls">
-                <select
-                  value={displayLanguage}
-                  onChange={(e) => handleDisplayLanguageChange(e.target.value)}
-                  className="language-selector"
-                >
-                  <option value="both">中英对照</option>
-                  <option value="zh">仅中文</option>
-                  <option value="en">仅英文</option>
-                </select>
-                <div className="audio-language-buttons">
-                  {availableLanguages.map((lang) => (
-                    <button
-                      key={lang}
-                      className={`audio-language-btn ${audioLanguage === lang ? 'active' : ''}`}
-                      onClick={() => {
-                        setAudioLanguage(lang)
-                        if (selectedArticle) {
-                          const newAudioUrl = `https://raw.githubusercontent.com/${githubRepo}/${GITHUB_BRANCH}/backend/audio_files/${selectedArticle.audio_filename.replace(/_(en|zh)_/, `_${lang}_`)}`
-                          audioRef.current.src = newAudioUrl
-                          audioRef.current.load()
-                          audioRef.current.play()
-                        }
-                      }}
-                    >
-                      {lang === 'zh' ? '中' : 'EN'}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              
               {showSentences.map((sentence, index) => (
                 sentence.text === '\n' ? (
                   <br key={index} />
