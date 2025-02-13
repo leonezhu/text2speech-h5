@@ -132,28 +132,18 @@ function App() {
   return (
     <div className="app-container">
       <div className="top-toolbar">
-        <div className="toolbar-left">
-          <button
-            className="toolbar-button"
-            onClick={() => setShowConfigModal(true)}
-            title="配置仓库"
-          >
-            ⚙️
-          </button>
-        </div>
-
         <div className="toolbar-right">
           <select
             value={displayLanguage}
             onChange={(e) => handleDisplayLanguageChange(e.target.value)}
             className="language-selector"
           >
-            <option value="both">中英 1对照</option>
+            <option value="both">中英对照</option>
             <option value="zh">仅中文</option>
             <option value="en">仅英文</option>
           </select>
 
-          <div className="audio-language-buttons">
+          {/* <div className="audio-language-buttons">
             {availableLanguages.map((lang) => (
               <button
                 key={lang}
@@ -175,8 +165,8 @@ function App() {
                 {lang === "zh" ? "🔊中" : "🔊EN"}
               </button>
             ))}
-          </div>
-          {/* 右上角 */}
+          </div> */}
+       
           <button
             className="toolbar-button"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -220,7 +210,16 @@ function App() {
       )}
 
       <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
-        <h2> &nbsp; </h2>
+        <div className="toolbar-left">
+          <button
+            className="toolbar-button"
+            onClick={() => setShowConfigModal(true)}
+            title="配置仓库"
+          >
+            ⚙️
+          </button>
+        </div>
+        
         {loading ? (
           <div className="loading">加载中...</div>
         ) : error ? (
@@ -244,49 +243,47 @@ function App() {
 
       <div className="main-content">
         {selectedArticle ? (
-         
-            <div className="article-view">
-              <div className="article-content">
-                <h2>{selectedArticle.title}</h2>
+          <div className="article-view">
+            <div className="article-content">
+              <h2>{selectedArticle.title}</h2>
 
-                {showSentences.map((sentence, index) =>
-                  sentence.text === "\n" ? (
-                    <br key={index} />
-                  ) : (
-                    <span
-                      key={index}
-                      className={`sentence ${
+              {showSentences.map((sentence, index) =>
+                sentence.text === "\n" ? (
+                  <br key={index} />
+                ) : (
+                  <span
+                    key={index}
+                    className={`sentence ${
+                      currentTime >= sentence.start_time &&
+                      currentTime <= sentence.end_time
+                        ? "active"
+                        : ""
+                    }`}
+                    onClick={() => {
+                      if (audioRef.current) {
+                        audioRef.current.currentTime = sentence.start_time;
+                        audioRef.current.play();
+                      }
+                    }}
+                    ref={(el) => {
+                      if (
+                        el &&
                         currentTime >= sentence.start_time &&
                         currentTime <= sentence.end_time
-                          ? "active"
-                          : ""
-                      }`}
-                      onClick={() => {
-                        if (audioRef.current) {
-                          audioRef.current.currentTime = sentence.start_time;
-                          audioRef.current.play();
-                        }
-                      }}
-                      ref={(el) => {
-                        if (
-                          el &&
-                          currentTime >= sentence.start_time &&
-                          currentTime <= sentence.end_time
-                        ) {
-                          el.scrollIntoView({
-                            behavior: "smooth",
-                            block: "center",
-                          });
-                        }
-                      }}
-                    >
-                      {sentence.text}{" "}
-                    </span>
-                  )
-                )}
-              </div>
+                      ) {
+                        el.scrollIntoView({
+                          behavior: "smooth",
+                          block: "center",
+                        });
+                      }
+                    }}
+                  >
+                    {sentence.text}{" "}
+                  </span>
+                )
+              )}
             </div>
-          
+          </div>
         ) : loading ? (
           <div className="loading">加载中...</div>
         ) : error ? (
@@ -294,18 +291,17 @@ function App() {
         ) : null}
       </div>
       {selectedArticle ? (
-
-      <div className="audio-player-bottom">
-        <audio
-          ref={audioRef}
-          controls
-          src={selectedArticle.audioUrl}
-          onTimeUpdate={(e) => setCurrentTime(e.target.currentTime)}
-        >
-          您的浏览器不支持音频播放
-        </audio>
-      </div>
-       ) : null}
+        <div className="audio-player-bottom">
+          <audio
+            ref={audioRef}
+            controls
+            src={selectedArticle.audioUrl}
+            onTimeUpdate={(e) => setCurrentTime(e.target.currentTime)}
+          >
+            您的浏览器不支持音频播放
+          </audio>
+        </div>
+      ) : null}
     </div>
   );
 }

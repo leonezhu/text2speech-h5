@@ -107,7 +107,7 @@
   left: 0;
   right: 0;
   background-color: #1a202c;
-  /* border-top: 1px solid #2d3748; */
+  border-top: 1px solid #2d3748;
   padding: 8px 0;
   display: flex;
   justify-content: center;
@@ -119,10 +119,14 @@
   .audio-player-bottom {
     top: 0;
     border-top: none;
-    border-bottom: 1px solid #2d3748;
     padding: 4px 0;
     height: 48px;
     background-color: transparent;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   .top-toolbar {
@@ -146,8 +150,40 @@
 }
 
 .audio-player-bottom > audio {
-  width: 90%;
-  max-width: 800px;
+  width: 100%;
+  /* max-width: 800px; */
+  /* height: 40px; */
+  background-color: #2d3748;
+  border-radius: 4px;
+}
+
+/* 自定义音频播放器样式 */
+audio::-webkit-media-controls-panel {
+  background-color: #2d3748;
+}
+
+audio::-webkit-media-controls-play-button,
+audio::-webkit-media-controls-mute-button {
+  background-color: #4a5568;
+  border-radius: 50%;
+  color: #e2e8f0;
+}
+
+audio::-webkit-media-controls-current-time-display,
+audio::-webkit-media-controls-time-remaining-display {
+  color: #e2e8f0;
+}
+
+audio::-webkit-media-controls-timeline {
+  background-color: transparent;
+  border-radius: 2px;
+  height: 4px;
+}
+
+audio::-webkit-media-controls-volume-slider {
+  background-color: #4a5568;
+  border-radius: 2px;
+  padding: 0;
 }
 
 .sidebar {
@@ -173,15 +209,14 @@
 .sidebar-toggle {
   position: fixed;
   left: 10px;
-  top: 4px;
-  z-index: 1001;
+  top: 10px;
+  z-index: 1002;
   width: 40px;
   height: 40px;
   padding: 0;
   background-color: #2c5282;
   color: white;
   border: none;
-  /* border-radius: 50%; */
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
