@@ -108,6 +108,36 @@ function App() {
     }
   }, [selectedArticle]);
 
+
+  // 添加键盘事件处理函数
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      // 如果正在输入文本（比如在配置模态框中），则不处理空格键
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        return;
+      }
+      
+      // 当按下空格键且有选中的文章时
+      if (e.code === 'Space' && selectedArticle && audioRef.current) {
+        e.preventDefault(); // 阻止页面滚动
+        if (audioRef.current.paused) {
+          audioRef.current.play();
+        } else {
+          audioRef.current.pause();
+        }
+      }
+    };
+
+    // 添加事件监听
+    window.addEventListener('keydown', handleKeyPress);
+
+    // 清理函数
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [selectedArticle]); // 依赖项包含 selectedArticle
+
+
   const handleDisplayLanguageChange = (lang, sentences = null) => {
     setDisplayLanguage(lang);
     const targetSentences =
