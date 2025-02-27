@@ -106,9 +106,9 @@
   position: fixed;
   left: 0;
   right: 0;
-  background-color: #1a202c;
+  /* background-color: #1a202c; */
   border-top: 1px solid #2d3748;
-  padding: 8px 0;
+  /* padding: 2px 0 0; */
   display: flex;
   justify-content: center;
   align-items: center;
