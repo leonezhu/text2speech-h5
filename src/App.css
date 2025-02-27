@@ -153,7 +153,8 @@
   width: 100%;
   /* max-width: 800px; */
   /* height: 40px; */
-  background-color: transparent !important;
+  /* background-color: transparent !important; */
+  background-color: #1a202c;
   border-radius: 0 !important;
   -webkit-appearance: none; /* 移除默认外观 */
   appearance: none; /* 标准属性移除默认外观 */
