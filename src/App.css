@@ -154,18 +154,21 @@
   /* max-width: 800px; */
   /* height: 40px; */
   background-color: #2d3748;
-  border-radius: 4px;
+  border-radius: 0; 
+  -webkit-appearance: none; /* 移除默认外观 */
+  appearance: none; /* 标准属性移除默认外观 */
 }
 
 /* 自定义音频播放器样式 */
 audio::-webkit-media-controls-panel {
   background-color: #2d3748;
+  border-radius: 0; 
 }
 
 audio::-webkit-media-controls-play-button,
 audio::-webkit-media-controls-mute-button {
   background-color: #4a5568;
-  border-radius: 50%;
+  border-radius: 0; /* 移除按钮的圆角，改为方形 */
   color: #e2e8f0;
 }
 
@@ -176,13 +179,13 @@ audio::-webkit-media-controls-time-remaining-display {
 
 audio::-webkit-media-controls-timeline {
   background-color: transparent;
-  border-radius: 2px;
+  border-radius: 0; /* 移除时间轴的圆角 */
   height: 4px;
 }
 
 audio::-webkit-media-controls-volume-slider {
   background-color: #4a5568;
-  border-radius: 2px;
+  border-radius: 0; /* 移除音量滑块的圆角 */
   padding: 0;
 }
 
