@@ -153,22 +153,36 @@
   width: 100%;
   /* max-width: 800px; */
   /* height: 40px; */
-  background-color: #2d3748;
-  border-radius: 0; 
+  background-color: transparent !important;
+  border-radius: 0 !important;
   -webkit-appearance: none; /* 移除默认外观 */
   appearance: none; /* 标准属性移除默认外观 */
+  border-radius: 0 !important;
 }
 
 /* 自定义音频播放器样式 */
-audio::-webkit-media-controls-panel {
-  background-color: #2d3748;
-  border-radius: 0; 
+audio::-webkit-media-controls-panel,
+audio::-webkit-media-controls,
+audio::-webkit-media-controls-enclosure,
+audio::-webkit-media-controls-container,
+audio::-moz-media-controls,
+audio::-ms-media-controls {
+  background-color: transparent !important;
+  border-radius: 0 !important;
 }
 
 audio::-webkit-media-controls-play-button,
-audio::-webkit-media-controls-mute-button {
-  background-color: #4a5568;
-  border-radius: 0; /* 移除按钮的圆角，改为方形 */
+audio::-webkit-media-controls-mute-button,
+audio::-webkit-media-controls-volume-slider-container,
+audio::-webkit-media-controls-volume-slider,
+audio::-webkit-media-controls-seek-back-button,
+audio::-webkit-media-controls-seek-forward-button,
+audio::-webkit-media-controls-fullscreen-button,
+audio::-webkit-media-controls-rewind-button,
+audio::-webkit-media-controls-return-to-realtime-button,
+audio::-webkit-media-controls-toggle-closed-captions-button {
+  background-color: transparent !important;
+  border-radius: 0 !important; /* 移除按钮的圆角，改为方形 */
   color: #e2e8f0;
 }
 
@@ -177,16 +191,44 @@ audio::-webkit-media-controls-time-remaining-display {
   color: #e2e8f0;
 }
 
-audio::-webkit-media-controls-timeline {
+audio::-webkit-media-controls-timeline,
+audio::-webkit-slider-runnable-track,
+audio::-webkit-slider-thumb {
   background-color: transparent;
-  border-radius: 0; /* 移除时间轴的圆角 */
+  border-radius: 0 !important; /* 移除时间轴的圆角 */
   height: 4px;
 }
 
-audio::-webkit-media-controls-volume-slider {
-  background-color: #4a5568;
-  border-radius: 0; /* 移除音量滑块的圆角 */
+audio::-webkit-media-controls-volume-slider,
+audio::-webkit-media-controls-volume-control-container,
+audio::-webkit-media-controls-volume-control {
+  background-color: transparent !important;
+  border-radius: 0 !important; /* 移除音量滑块的圆角 */
   padding: 0;
+}
+
+/* 针对移动设备的额外样式 */
+@media (max-width: 768px) {
+  audio,
+  audio::-webkit-media-controls-panel,
+  audio::-webkit-media-controls-enclosure,
+  audio::-webkit-media-controls-container {
+    border-radius: 0 !important;
+    -webkit-border-radius: 0 !important;
+  }
+  
+  /* 强制覆盖任何可能的圆角样式 */
+  * {
+    border-radius: 0 !important;
+  }
+}
+
+audio::-webkit-media-controls-enclosure {
+  border-radius: 0 !important;
+}
+
+audio::-webkit-media-controls-container {
+  border-radius: 0 !important;
 }
 
 .sidebar {
