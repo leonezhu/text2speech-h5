@@ -121,7 +121,7 @@
     border-top: none;
     padding: 4px 0;
     height: 48px;
-    background-color: transparent;
+    background-color: #1a202c;
     max-width: 800px;
     margin-left: auto;
     margin-right: auto;
@@ -146,18 +146,16 @@
 @media (max-width: 768px) {
   .audio-player-bottom {
     bottom: 0;
+    background-color: #1a202c !important;
   }
 }
 
 .audio-player-bottom > audio {
   width: 100%;
-  /* max-width: 800px; */
-  /* height: 40px; */
-  /* background-color: transparent !important; */
-  background-color: #1a202c;
+  background-color: #1a202c !important;
   border-radius: 0 !important;
-  -webkit-appearance: none; /* 移除默认外观 */
-  appearance: none; /* 标准属性移除默认外观 */
+  -webkit-appearance: none;
+  appearance: none;
   border-radius: 0 !important;
 }
 
@@ -363,7 +361,6 @@ audio::-webkit-media-controls-container {
   border-radius: 4px;
   transition: all 0.2s ease;
   color: #e2e8f0;
-  background-color: rgba(44, 82, 130, 0.1);
   display: inline-block;
   margin: 2px;
 }
@@ -374,7 +371,6 @@ audio::-webkit-media-controls-container {
 
 .sentence.active {
   background-color: cadetblue;
-  /* color: #ffffff; */
   font-weight: 600;
   box-shadow: 0 0 4px rgba(49, 130, 206, 0.4);
 }
