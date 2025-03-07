@@ -14,6 +14,8 @@ function App() {
   const [availableLanguages, setAvailableLanguages] = useState([]);
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [githubRepo, setGithubRepo] = useState("");
+  const [isAutoPlay, setIsAutoPlay] = useState(false);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   const audioRef = useRef(null);
   const GITHUB_BRANCH = "master";
@@ -67,7 +69,7 @@ function App() {
         );
         setArticles(sortedArticles);
         if (sortedArticles.length > 0) {
-          handleArticleSelect(sortedArticles[0]);
+          handleArticleSelect(sortedArticles[0], true);
         }
       }
     } catch (err) {
@@ -77,7 +79,7 @@ function App() {
     }
   };
 
-  const handleArticleSelect = (article) => {
+  const handleArticleSelect = (article, isInitialLoad = false, isAutoPlayTriggered = false) => {
     setSelectedArticle(article);
     setIsSidebarOpen(false);
 
@@ -96,6 +98,15 @@ function App() {
       const audioUrl = `https://raw.githubusercontent.com/${githubRepo}/${GITHUB_BRANCH}/audio_files/${article.language_versions[defaultLang].audio_filename}`;
       setSelectedArticle((prev) => ({ ...prev, audioUrl }));
       handleDisplayLanguageChange("both", sentences);
+      
+      if (isInitialLoad) {
+        setIsFirstLoad(true);
+      } else if (isAutoPlayTriggered) {
+        setIsFirstLoad(false);
+      } else {
+        // 手动选择文章时，不自动播放
+        setIsFirstLoad(true);
+      }
     } else {
       setError("文章内容加载失败");
     }
@@ -105,8 +116,34 @@ function App() {
     if (selectedArticle?.audioUrl && audioRef.current) {
       audioRef.current.src = selectedArticle.audioUrl;
       audioRef.current.load();
+      if (!isFirstLoad) {
+        audioRef.current.play();
+      } else {
+        setIsFirstLoad(false);
+      }
     }
-  }, [selectedArticle]);
+  }, [selectedArticle, isFirstLoad]);
+
+  // 添加音频结束事件处理
+  useEffect(() => {
+    const handleAudioEnd = () => {
+      if (isAutoPlay && articles.length > 0) {
+        const currentIndex = articles.findIndex(article => article.id === selectedArticle.id);
+        const nextIndex = (currentIndex + 1) % articles.length;
+        handleArticleSelect(articles[nextIndex], false, true);
+      }
+    };
+
+    if (audioRef.current) {
+      audioRef.current.addEventListener('ended', handleAudioEnd);
+    }
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.removeEventListener('ended', handleAudioEnd);
+      }
+    };
+  }, [isAutoPlay, articles, selectedArticle]);
 
 
   // 添加键盘事件处理函数
@@ -197,6 +234,13 @@ function App() {
             ))}
           </div> */}
        
+          <button
+            className="toolbar-button"
+            onClick={() => setIsAutoPlay(!isAutoPlay)}
+            title={isAutoPlay ? "关闭循环播放" : "开启循环播放"}
+          >
+            {isAutoPlay ? "🤖" : "🐻"}
+          </button>
           <button
             className="toolbar-button"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
