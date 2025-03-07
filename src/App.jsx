@@ -9,13 +9,13 @@ function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [displayLanguage, setDisplayLanguage] = useState("both");
-  const [audioLanguage, setAudioLanguage] = useState("");
   const [showSentences, setShowSentences] = useState([]);
-  const [availableLanguages, setAvailableLanguages] = useState([]);
+  // const [availableLanguages, setAvailableLanguages] = useState([]);
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [githubRepo, setGithubRepo] = useState("");
   const [isAutoPlay, setIsAutoPlay] = useState(false);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [isAutoPlayTriggered, setIsAutoPlayTriggered] = useState(false);
 
   const audioRef = useRef(null);
   const GITHUB_BRANCH = "master";
@@ -79,21 +79,16 @@ function App() {
     }
   };
 
-  const handleArticleSelect = (article, isInitialLoad = false, isAutoPlayTriggered = false) => {
+  const handleArticleSelect = (article, isAutoPlayTriggered = false) => {
     setSelectedArticle(article);
     setIsSidebarOpen(false);
 
     const languages = Object.keys(article.language_versions || {});
-    setAvailableLanguages(languages);
+    // setAvailableLanguages(languages);
 
     const defaultLang = languages.includes("en") ? "en" : languages[0];
-    setAudioLanguage(defaultLang);
-
-    if (
-      article &&
-      article.language_versions &&
-      article.language_versions[defaultLang]
-    ) {
+    
+    if (article?.language_versions?.[defaultLang]) {
       const sentences = article.language_versions[defaultLang].sentences || [];
       const audioUrl = `https://raw.githubusercontent.com/${githubRepo}/${GITHUB_BRANCH}/audio_files/${article.language_versions[defaultLang].audio_filename}`;
       setSelectedArticle((prev) => ({ ...prev, audioUrl }));
@@ -105,8 +100,6 @@ function App() {
       setError("文章内容加载失败");
     }
   };
-
-  const [isAutoPlayTriggered, setIsAutoPlayTriggered] = useState(false);
 
   useEffect(() => {
     if (selectedArticle?.audioUrl && audioRef.current) {
@@ -143,8 +136,6 @@ function App() {
     };
   }, [isAutoPlay, articles, selectedArticle]);
 
-
-
   // 添加键盘事件处理函数
   useEffect(() => {
     const handleKeyPress = (e) => {
@@ -173,16 +164,10 @@ function App() {
     };
   }, [selectedArticle]); // 依赖项包含 selectedArticle
 
-
   const handleDisplayLanguageChange = (lang, sentences = null) => {
     setDisplayLanguage(lang);
-    const targetSentences =
-      sentences ||
-      (selectedArticle &&
-        selectedArticle.language_versions &&
-        selectedArticle.language_versions[audioLanguage]?.sentences) ||
-      [];
-    if (!targetSentences) return;
+    const targetSentences = sentences || [];
+    if (!targetSentences.length) return;
 
     let temp = [];
     if (lang === "both") {
@@ -208,30 +193,6 @@ function App() {
             <option value="zh">仅中文</option>
             <option value="en">仅英文</option>
           </select>
-
-          {/* <div className="audio-language-buttons">
-            {availableLanguages.map((lang) => (
-              <button
-                key={lang}
-                className="toolbar-button"
-                onClick={() => {
-                  setAudioLanguage(lang);
-                  if (selectedArticle) {
-                    const newAudioUrl = `https://raw.githubusercontent.com/${githubRepo}/${GITHUB_BRANCH}/backend/audio_files/${selectedArticle.audio_filename.replace(
-                      /_(en|zh)_/,
-                      `_${lang}_`
-                    )}`;
-                    audioRef.current.src = newAudioUrl;
-                    audioRef.current.load();
-                    audioRef.current.play();
-                  }
-                }}
-                title={lang === "zh" ? "中文音频" : "英文音频"}
-              >
-                {lang === "zh" ? "🔊中" : "🔊EN"}
-              </button>
-            ))}
-          </div> */}
        
           <button
             className="toolbar-button"
@@ -328,6 +289,7 @@ function App() {
                     key={index}
                     className={`sentence ${currentTime >= sentence.start_time && currentTime <= sentence.end_time ? "active" : ""}`}
                     onClick={(e) => {
+                      console.log(e);
                       if (isSidebarOpen) {
                         setIsSidebarOpen(false);
                         return;
