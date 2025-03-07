@@ -315,7 +315,7 @@ function App() {
         )}
       </div>
 
-      <div className="main-content">
+      <div className="main-content" onClick={() => isSidebarOpen && setIsSidebarOpen(false)}>
         {selectedArticle ? (
           <div className="article-view">
             <div className="article-content">
@@ -327,28 +327,20 @@ function App() {
                 ) : (
                   <span
                     key={index}
-                    className={`sentence ${
-                      currentTime >= sentence.start_time &&
-                      currentTime <= sentence.end_time
-                        ? "active"
-                        : ""
-                    }`}
-                    onClick={() => {
+                    className={`sentence ${currentTime >= sentence.start_time && currentTime <= sentence.end_time ? "active" : ""}`}
+                    onClick={(e) => {
+                      if (isSidebarOpen) {
+                        setIsSidebarOpen(false);
+                        return;
+                      }
                       if (audioRef.current) {
                         audioRef.current.currentTime = sentence.start_time;
                         audioRef.current.play();
                       }
                     }}
                     ref={(el) => {
-                      if (
-                        el &&
-                        currentTime >= sentence.start_time &&
-                        currentTime <= sentence.end_time
-                      ) {
-                        el.scrollIntoView({
-                          behavior: "smooth",
-                          block: "center",
-                        });
+                      if (el && currentTime >= sentence.start_time && currentTime <= sentence.end_time) {
+                        el.scrollIntoView({ behavior: "smooth", block: "center" });
                       }
                     }}
                   >
