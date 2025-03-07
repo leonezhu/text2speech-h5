@@ -99,30 +99,27 @@ function App() {
       setSelectedArticle((prev) => ({ ...prev, audioUrl }));
       handleDisplayLanguageChange("both", sentences);
       
-      if (isInitialLoad) {
-        setIsFirstLoad(true);
-      } else if (isAutoPlayTriggered) {
-        setIsFirstLoad(false);
-      } else {
-        // 手动选择文章时，不自动播放
-        setIsFirstLoad(true);
-      }
+      // 只有在连续播放触发时才设置为false来启动自动播放，其他情况都保持为true
+      setIsFirstLoad(!isAutoPlayTriggered);
     } else {
       setError("文章内容加载失败");
     }
   };
 
+  const [isAutoPlayTriggered, setIsAutoPlayTriggered] = useState(false);
+
   useEffect(() => {
     if (selectedArticle?.audioUrl && audioRef.current) {
       audioRef.current.src = selectedArticle.audioUrl;
       audioRef.current.load();
-      if (!isFirstLoad) {
+      // 只有在自动播放模式下且不是首次加载时才自动播放
+      if (!isFirstLoad && isAutoPlayTriggered) {
         audioRef.current.play();
-      } else {
+      } else if (isFirstLoad) {
         setIsFirstLoad(false);
       }
     }
-  }, [selectedArticle, isFirstLoad]);
+  }, [selectedArticle, isFirstLoad, isAutoPlayTriggered]);
 
   // 添加音频结束事件处理
   useEffect(() => {
@@ -130,6 +127,7 @@ function App() {
       if (isAutoPlay && articles.length > 0) {
         const currentIndex = articles.findIndex(article => article.id === selectedArticle.id);
         const nextIndex = (currentIndex + 1) % articles.length;
+        setIsAutoPlayTriggered(true);
         handleArticleSelect(articles[nextIndex], false, true);
       }
     };
@@ -144,6 +142,7 @@ function App() {
       }
     };
   }, [isAutoPlay, articles, selectedArticle]);
+
 
 
   // 添加键盘事件处理函数
