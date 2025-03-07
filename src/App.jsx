@@ -182,6 +182,12 @@ function App() {
 
   return (
     <div className="app-container">
+      {isSidebarOpen && (
+        <div
+          className={`sidebar-overlay ${isSidebarOpen ? 'show' : ''}`}
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
       <div className="top-toolbar">
         <div className="toolbar-right">
           <select
