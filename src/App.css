@@ -108,11 +108,12 @@
   right: 0;
   background-color: #1a202c;
   border-top: 1px solid #2d3748;
-  padding: 8px 0;
-  display: flex;
+  /* padding: 8px 0; */
+  /* display: flex; */
   justify-content: center;
   align-items: center;
   z-index: 1001;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
 }
 
 @media (min-width: 769px) {
@@ -166,8 +167,9 @@ audio::-webkit-media-controls-enclosure,
 audio::-webkit-media-controls-container,
 audio::-moz-media-controls,
 audio::-ms-media-controls {
-  background-color: transparent !important;
+  background-color: #1a202c !important;
   border-radius: 0 !important;
+  color: #ffffff !important;
 }
 
 audio::-webkit-media-controls-play-button,
@@ -181,29 +183,56 @@ audio::-webkit-media-controls-rewind-button,
 audio::-webkit-media-controls-return-to-realtime-button,
 audio::-webkit-media-controls-toggle-closed-captions-button {
   background-color: transparent !important;
-  border-radius: 0 !important; /* 移除按钮的圆角，改为方形 */
-  color: #e2e8f0;
+  border-radius: 0 !important;
+  color: #ffffff !important;
+  filter: brightness(1.5) contrast(1.2);
 }
 
 audio::-webkit-media-controls-current-time-display,
 audio::-webkit-media-controls-time-remaining-display {
-  color: #e2e8f0;
+  color: #ffffff !important;
 }
 
 audio::-webkit-media-controls-timeline,
 audio::-webkit-slider-runnable-track,
 audio::-webkit-slider-thumb {
-  background-color: transparent;
-  border-radius: 0 !important; /* 移除时间轴的圆角 */
+  border-radius: 0 !important;
   height: 4px;
+  background-color: #ffffff !important;
 }
 
 audio::-webkit-media-controls-volume-slider,
 audio::-webkit-media-controls-volume-control-container,
 audio::-webkit-media-controls-volume-control {
   background-color: transparent !important;
-  border-radius: 0 !important; /* 移除音量滑块的圆角 */
+  border-radius: 0 !important;
   padding: 0;
+  color: #ffffff !important;
+}
+
+/* 增强音频播放器深色背景样式 */
+audio,
+audio::-webkit-media-controls,
+audio::-webkit-media-controls-panel {
+  background-color: #1a202c !important;
+  color: #ffffff !important;
+}
+
+audio::-webkit-slider-runnable-track,
+audio::-webkit-slider-thumb,
+audio::-webkit-media-slider-container {
+  background-color: #2d3748 !important;
+}
+
+audio::-webkit-media-controls-play-button,
+audio::-webkit-media-controls-timeline-container,
+audio::-webkit-media-controls-current-time-display,
+audio::-webkit-media-controls-time-remaining-display,
+audio::-webkit-media-controls-timeline,
+audio::-webkit-media-controls-volume-slider-container,
+audio::-webkit-media-controls-toggle-closed-captions-button {
+  color: #ffffff !important;
+  background-color: #1a202c !important;
 }
 
 /* 针对移动设备的额外样式 */
