@@ -69,7 +69,18 @@ function App() {
         );
         setArticles(sortedArticles);
         if (sortedArticles.length > 0) {
-          handleArticleSelect(sortedArticles[0], true);
+          // 尝试从缓存中读取上次打开的文章
+          const lastSelectedArticleId = localStorage.getItem('lastSelectedArticleId');
+          let articleToSelect = sortedArticles[0]; // 默认选择第一篇
+          
+          if (lastSelectedArticleId) {
+            const cachedArticle = sortedArticles.find(article => article.id === lastSelectedArticleId);
+            if (cachedArticle) {
+              articleToSelect = cachedArticle;
+            }
+          }
+          
+          handleArticleSelect(articleToSelect, true);
         }
       }
     } catch (err) {
@@ -82,6 +93,9 @@ function App() {
   const handleArticleSelect = (article, isAutoPlayTriggered = false) => {
     setSelectedArticle(article);
     setIsSidebarOpen(false);
+    
+    // 将当前选择的文章ID保存到缓存中
+    localStorage.setItem('lastSelectedArticleId', article.id);
 
     const languages = Object.keys(article.language_versions || {});
     // setAvailableLanguages(languages);
