@@ -121,7 +121,10 @@ function App() {
       audioRef.current.load();
       // 只有在自动播放模式下且不是首次加载时才自动播放
       if (!isFirstLoad && isAutoPlayTriggered) {
-        audioRef.current.play();
+        //延迟 2 秒
+        setTimeout(() => {
+          audioRef.current.play();
+        }, 2000);
       } else if (isFirstLoad) {
         setIsFirstLoad(false);
       }
