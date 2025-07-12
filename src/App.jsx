@@ -13,7 +13,10 @@ function App() {
   // const [availableLanguages, setAvailableLanguages] = useState([]);
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [githubRepo, setGithubRepo] = useState("");
-  const [isAutoPlay, setIsAutoPlay] = useState(false);
+  const [playMode, setPlayMode] = useState(() => {
+    // 从localStorage读取上次保存的播放模式，默认为"off"
+    return localStorage.getItem("playMode") || "off";
+  }); // "single" 当前文章循环, "list" 列表循环, "off" 关闭循环
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [isAutoPlayTriggered, setIsAutoPlayTriggered] = useState(false);
 
@@ -134,12 +137,21 @@ function App() {
   // 添加音频结束事件处理
   useEffect(() => {
     const handleAudioEnd = () => {
-      if (isAutoPlay && articles.length > 0) {
+      if (playMode === "single") {
+        // 当前文章循环播放
+        audioRef.current.currentTime = 0;
+        // 延迟 2 秒后再播放
+        setTimeout(() => {
+          audioRef.current.play();
+        }, 2000);
+      } else if (playMode === "list" && articles.length > 0) {
+        // 列表循环播放
         const currentIndex = articles.findIndex(article => article.id === selectedArticle.id);
         const nextIndex = (currentIndex + 1) % articles.length;
         setIsAutoPlayTriggered(true);
-        handleArticleSelect(articles[nextIndex], false, true);
+        handleArticleSelect(articles[nextIndex], true);
       }
+      // playMode === "off" 时不做任何处理，音频自然结束
     };
 
     if (audioRef.current) {
@@ -151,7 +163,7 @@ function App() {
         audioRef.current.removeEventListener('ended', handleAudioEnd);
       }
     };
-  }, [isAutoPlay, articles, selectedArticle]);
+  }, [playMode, articles, selectedArticle]);
 
   // 添加键盘事件处理函数
   useEffect(() => {
@@ -188,8 +200,10 @@ function App() {
 
     let temp = [];
     if (lang === "both") {
+      // 显示所有内容（中英对照）
       temp = targetSentences;
     } else {
+      // 只显示指定语言的内容和换行符
       temp = targetSentences.filter(
         (sentence) => sentence.language === lang || sentence.text === "\n"
       );
@@ -209,7 +223,7 @@ function App() {
         <div className="toolbar-right">
           <select
             value={displayLanguage}
-            onChange={(e) => handleDisplayLanguageChange(e.target.value)}
+            onChange={(e) => handleDisplayLanguageChange(e.target.value,selectedArticle.language_versions['en'].sentences)}
             className="language-selector"
           >
             <option value="both">中英对照</option>
@@ -219,10 +233,27 @@ function App() {
        
           <button
             className="toolbar-button"
-            onClick={() => setIsAutoPlay(!isAutoPlay)}
-            title={isAutoPlay ? "关闭循环播放" : "开启循环播放"}
+            onClick={() => {
+              let newMode;
+              if (playMode === "off") {
+                newMode = "single";
+              } else if (playMode === "single") {
+                newMode = "list";
+              } else {
+                newMode = "off";
+              }
+              setPlayMode(newMode);
+              localStorage.setItem("playMode", newMode);
+            }}
+            title={
+              playMode === "off" 
+                ? "关闭循环播放（点击开启当前文章循环）" 
+                : playMode === "single" 
+                  ? "当前文章循环播放（点击切换到列表循环）" 
+                  : "列表循环播放（点击关闭循环播放）"
+            }
           >
-            {isAutoPlay ? "🤖" : "🐻"}
+            {playMode === "off" ? "🐻" : playMode === "single" ? "🔂" : "🔁"}
           </button>
           <button
             className="toolbar-button"
