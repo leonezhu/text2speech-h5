@@ -195,8 +195,16 @@ function App() {
 
   const handleDisplayLanguageChange = (lang, sentences = null) => {
     setDisplayLanguage(lang);
-    const targetSentences = sentences || [];
-    if (!targetSentences.length) return;
+    let targetSentences = sentences;
+    
+    // 如果没有传入sentences，尝试从当前选中的文章中获取
+    if (!targetSentences && selectedArticle?.language_versions) {
+      const languages = Object.keys(selectedArticle.language_versions);
+      const defaultLang = languages.includes("en") ? "en" : languages[0];
+      targetSentences = selectedArticle.language_versions[defaultLang]?.sentences || [];
+    }
+    
+    if (!targetSentences || !targetSentences.length) return;
 
     let temp = [];
     if (lang === "both") {
@@ -221,15 +229,29 @@ function App() {
       )}
       <div className="top-toolbar">
         <div className="toolbar-right">
-          <select
-            value={displayLanguage}
-            onChange={(e) => handleDisplayLanguageChange(e.target.value,selectedArticle.language_versions['en'].sentences)}
-            className="language-selector"
+          <button
+            className="toolbar-button"
+            onClick={() => {
+              let newLang;
+              if (displayLanguage === "both") {
+                newLang = "zh";
+              } else if (displayLanguage === "zh") {
+                newLang = "en";
+              } else {
+                newLang = "both";
+              }
+              handleDisplayLanguageChange(newLang);
+            }}
+            title={
+              displayLanguage === "both" 
+                ? "中英对照（点击切换到仅中文）" 
+                : displayLanguage === "zh" 
+                  ? "仅中文（点击切换到仅英文）" 
+                  : "仅英文（点击切换到中英对照）"
+            }
           >
-            <option value="both">中英对照</option>
-            <option value="zh">仅中文</option>
-            <option value="en">仅英文</option>
-          </select>
+            {displayLanguage === "both" ? "🔤" : displayLanguage === "zh" ? "🇨🇳" : "🇺🇸"}
+          </button>
        
           <button
             className="toolbar-button"
